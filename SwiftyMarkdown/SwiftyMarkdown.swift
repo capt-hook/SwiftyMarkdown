@@ -25,6 +25,11 @@ public struct BasicStyles : FontProperties {
     public var color: UIColor? = UIColor.black
 }
 
+public struct BodyStyles : FontProperties {
+    public var font : UIFont? = nil
+    public var color: UIColor? = nil
+}
+
 enum LineType : Int {
 	case h1, h2, h3, h4, h5, h6, body
 }
@@ -55,37 +60,37 @@ enum LineStyle : Int {
 open class SwiftyMarkdown {
 	
 	/// The styles to apply to any H1 headers found in the Markdown
-	open var h1 = BasicStyles()
+	open var h1 = BodyStyles()
 
 	/// The styles to apply to any H2 headers found in the Markdown
-	open var h2 = BasicStyles()
+	open var h2 = BodyStyles()
 	
 	/// The styles to apply to any H3 headers found in the Markdown
-	open var h3 = BasicStyles()
+	open var h3 = BodyStyles()
 	
 	/// The styles to apply to any H4 headers found in the Markdown
-	open var h4 = BasicStyles()
+	open var h4 = BodyStyles()
 	
 	/// The styles to apply to any H5 headers found in the Markdown
-	open var h5 = BasicStyles()
+	open var h5 = BodyStyles()
 	
 	/// The styles to apply to any H6 headers found in the Markdown
-	open var h6 = BasicStyles()
+	open var h6 = BodyStyles()
 	
 	/// The default body styles. These are the base styles and will be used for e.g. headers if no other styles override them.
 	open var body = BasicStyles()
 	
 	/// The styles to apply to any links found in the Markdown
-	open var link = BasicStyles()
+	open var link = BodyStyles()
 
 	/// The styles to apply to any bold text found in the Markdown
-	open var bold = BasicStyles()
+	open var bold = BodyStyles()
 	
 	/// The styles to apply to any italic text found in the Markdown
-	open var italic = BasicStyles()
+	open var italic = BodyStyles()
 	
 	/// The styles to apply to any code blocks or inline code text found in the Markdown
-	open var code = BasicStyles()
+	open var code = BodyStyles()
 
 	
 	var currentType : LineType = .body
