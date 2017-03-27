@@ -11,7 +11,7 @@ import UIKit
 
 public protocol FontProperties {
 	var font : UIFont? { get set }
-	var color : UIColor { get set }
+	var color : UIColor? { get set }
 }
 
 
@@ -22,7 +22,7 @@ If that is not set, then the system default will be used.
 */
 public struct BasicStyles : FontProperties {
 	public var font : UIFont? = UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)
-	public var color = UIColor.black
+    public var color: UIColor? = UIColor.black
 }
 
 enum LineType : Int {
@@ -313,58 +313,57 @@ open class SwiftyMarkdown {
 	func attributedStringFromString(_ string : String, withStyle style : LineStyle, attributes : [String : AnyObject] = [:] ) -> NSAttributedString {
         
 		var font : UIFont!
+        var color: UIColor!
         var attributes = attributes
 		
 		switch currentType {
 		case .h1:
 			font = h1.font
-			attributes[NSForegroundColorAttributeName] = h1.color
+			color = h1.color
 		case .h2:
 			font = h2.font
-			attributes[NSForegroundColorAttributeName] = h2.color
+			color = h2.color
 		case .h3:
 			font = h3.font
-			attributes[NSForegroundColorAttributeName] = h3.color
+			color = h3.color
 		case .h4:
 			font = h4.font
-			attributes[NSForegroundColorAttributeName] = h4.color
+			color = h4.color
 		case .h5:
 			font = h5.font
-			attributes[NSForegroundColorAttributeName] = h5.color
+			color = h5.color
 		case .h6:
 			font = h6.font
-			attributes[NSForegroundColorAttributeName] = h6.color
+			color = h6.color
 		default:
 			font = body.font
-			attributes[NSForegroundColorAttributeName] = body.color
+			color = body.color
 			break
 		}
 		
 		if style == .code {
 			font = code.font
-			attributes[NSForegroundColorAttributeName] = code.color
+			color = code.color
 		}
 		
 		if style == .link {
 			font = link.font
-			attributes[NSForegroundColorAttributeName] = link.color
+			color = link.color
 		}
         
         if style == .bold {
             font = bold.font
-            attributes[NSForegroundColorAttributeName] = bold.color
+            color = bold.color
         }
         
         if style == .italic {
             font = italic.font
-            attributes[NSForegroundColorAttributeName] = italic.color
+            color = italic.color
         }
 		
-		// Fallback to body
-		if let _ = font {
-			
-		} else {
-			font = body.font
+        if font == nil {
+            
+            font = body.font
             
             let baseDescriptor = font.fontDescriptor
             if style == .italic {
@@ -378,9 +377,15 @@ open class SwiftyMarkdown {
                 }
                 
             }
-		}
+        }
+        
+        if color == nil {
+            
+            color = body.color
+        }
 		
 		attributes[NSFontAttributeName] = font
+        attributes[NSForegroundColorAttributeName] = color
 		
 		return NSAttributedString(string: string, attributes: attributes)
 	}
