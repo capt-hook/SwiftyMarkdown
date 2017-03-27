@@ -10,7 +10,7 @@ import UIKit
 
 
 public protocol FontProperties {
-	var fontName : String? { get set }
+	var font : UIFont? { get set }
 	var color : UIColor { get set }
 }
 
@@ -21,7 +21,7 @@ A struct defining the styles that can be applied to the parsed Markdown. The `fo
 If that is not set, then the system default will be used.
 */
 public struct BasicStyles : FontProperties {
-	public var fontName : String? = UIFont.preferredFont(forTextStyle: UIFontTextStyle.body).fontName
+	public var font : UIFont? = UIFont.preferredFont(forTextStyle: UIFontTextStyle.body)
 	public var color = UIColor.black
 }
 
@@ -311,103 +311,76 @@ open class SwiftyMarkdown {
 	// Make H1
 	
 	func attributedStringFromString(_ string : String, withStyle style : LineStyle, attributes : [String : AnyObject] = [:] ) -> NSAttributedString {
-		let textStyle : UIFontTextStyle
-		var fontName : String?
+        
+		var font : UIFont!
         var attributes = attributes
-
-		// What type are we and is there a font name set?
-		
 		
 		switch currentType {
 		case .h1:
-			fontName = h1.fontName
-			if #available(iOS 9, *) {
-				textStyle = UIFontTextStyle.title1
-			} else {
-				textStyle = UIFontTextStyle.headline
-			}
+			font = h1.font
 			attributes[NSForegroundColorAttributeName] = h1.color
 		case .h2:
-			fontName = h2.fontName
-			if #available(iOS 9, *) {
-				textStyle = UIFontTextStyle.title2
-			} else {
-				textStyle = UIFontTextStyle.headline
-			}
+			font = h2.font
 			attributes[NSForegroundColorAttributeName] = h2.color
 		case .h3:
-			fontName = h3.fontName
-			if #available(iOS 9, *) {
-				textStyle = UIFontTextStyle.title2
-			} else {
-				textStyle = UIFontTextStyle.subheadline
-			}
+			font = h3.font
 			attributes[NSForegroundColorAttributeName] = h3.color
 		case .h4:
-			fontName = h4.fontName
-			textStyle = UIFontTextStyle.headline
+			font = h4.font
 			attributes[NSForegroundColorAttributeName] = h4.color
 		case .h5:
-			fontName = h5.fontName
-			textStyle = UIFontTextStyle.subheadline
+			font = h5.font
 			attributes[NSForegroundColorAttributeName] = h5.color
 		case .h6:
-			fontName = h6.fontName
-			textStyle = UIFontTextStyle.footnote
+			font = h6.font
 			attributes[NSForegroundColorAttributeName] = h6.color
 		default:
-			fontName = body.fontName
-			textStyle = UIFontTextStyle.body
+			font = body.font
 			attributes[NSForegroundColorAttributeName] = body.color
 			break
 		}
 		
-		// Check for code
-		
 		if style == .code {
-			fontName = code.fontName
+			font = code.font
 			attributes[NSForegroundColorAttributeName] = code.color
 		}
 		
 		if style == .link {
-			fontName = link.fontName
+			font = link.font
 			attributes[NSForegroundColorAttributeName] = link.color
 		}
+        
+        if style == .bold {
+            font = bold.font
+            attributes[NSForegroundColorAttributeName] = bold.color
+        }
+        
+        if style == .italic {
+            font = italic.font
+            attributes[NSForegroundColorAttributeName] = italic.color
+        }
 		
 		// Fallback to body
-		if let _ = fontName {
+		if let _ = font {
 			
 		} else {
-			fontName = body.fontName
+			font = body.font
+            
+            let baseDescriptor = font.fontDescriptor
+            if style == .italic {
+                if let italicDescriptor = baseDescriptor.withSymbolicTraits(.traitItalic) {
+                    font = UIFont(descriptor: italicDescriptor, size: font.pointSize)
+                }
+            }
+            if style == .bold {
+                if let boldDescriptor = baseDescriptor.withSymbolicTraits(.traitBold) {
+                    font = UIFont(descriptor: boldDescriptor, size: font.pointSize)
+                }
+                
+            }
 		}
 		
-		let font = UIFont.preferredFont(forTextStyle: textStyle)
-		let styleDescriptor = font.fontDescriptor
-		let styleSize = styleDescriptor.fontAttributes[UIFontDescriptorSizeAttribute] as? CGFloat ?? CGFloat(14)
-		
-		var finalFont : UIFont
-		if let finalFontName = fontName, let font = UIFont(name: finalFontName, size: styleSize) {
-			finalFont = font
-		} else {
-			finalFont = UIFont.preferredFont(forTextStyle:  textStyle)
-		}
-		
-		let finalFontDescriptor = finalFont.fontDescriptor
-		if style == .italic {
-			if let italicDescriptor = finalFontDescriptor.withSymbolicTraits(.traitItalic) {
-				finalFont = UIFont(descriptor: italicDescriptor, size: styleSize)
-			}
-			
-		}
-		if style == .bold {
-			if let boldDescriptor = finalFontDescriptor.withSymbolicTraits(.traitBold) {
-				finalFont = UIFont(descriptor: boldDescriptor, size: styleSize)
-			}
-			
-		}
-		
-		
-		attributes[NSFontAttributeName] = finalFont
+		attributes[NSFontAttributeName] = font
 		
 		return NSAttributedString(string: string, attributes: attributes)
 	}
